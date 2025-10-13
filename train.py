@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from datetime import datetime
 
 import config
-from modeling import (
+from model_arch import (
     load_embeddings,
     build_tokenizer_and_model,
     apply_peft,
