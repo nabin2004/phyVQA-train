@@ -2,10 +2,10 @@
 from pathlib import Path
 
 # Paths
-EMB_FILE = "embeddings/vision_embeddings.pt"        # contain {"image_ids": [...], "embeddings": Tensor}
-DATA_JSONL = "/home/nabin/Desktop/completeIt/phyVQA/train_gemma_vis_prefix/data/scienceqa_nepali_train.jsonl"          # each line: {"image":"img.png","question":"...","answer":"..."}
-OUTPUT_DIR = "output_gemma_vision_lora"
-LOG_DIR = "logs"
+EMB_FILE = "./embeddings/vision_embeddings.pt"        # contain {"image_ids": [...], "embeddings": Tensor}
+DATA_JSONL = "./data/scienceqa_nepali_train.jsonl"          # each line: {"image":"img.png","question":"...","answer":"..."}
+OUTPUT_DIR = "./output_gemma_vision_lora"
+LOG_DIR = "./logs"
 
 # Model
 MODEL_ID = "google/gemma-3-270m-it" 
