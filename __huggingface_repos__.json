@@ -1,0 +1,1 @@
+{"repos": [{"repoId": "google/gemma-3-270m-it", "repoType": "model", "commitHash": "ac82b4e820549b854eebf28ce6dedaf9fdfa17b3", "filePaths": ["tokenizer.model", "chat_template.jinja", "config.json", "tokenizer_config.json", "model.safetensors", "special_tokens_map.json", "generation_config.json", "added_tokens.json", "tokenizer.json"]}]}

@@ -8,14 +8,14 @@ OUTPUT_DIR = "./output_gemma_vision_lora"
 LOG_DIR = "./logs"
 
 # Model
-MODEL_ID = "google/gemma-3-270m-it" 
+MODEL_ID = "google/gemma-3-1b-it" 
 TRUST_REMOTE_CODE = True
 
 # Training
 DEVICE = "cuda" if __import__("torch").cuda.is_available() else "cpu"
-BATCH_SIZE = 2
+BATCH_SIZE = 4
 LR = 2e-4
-EPOCHS = 3
+EPOCHS = 2
 SEED = 42
 PRINT_EVERY = 10
 
@@ -33,7 +33,7 @@ LORA_R = 8
 LORA_ALPHA = 32
 LORA_TARGET_MODULES = [
     "q_proj", "v_proj", "k_proj", "o_proj", "up_proj", "down_proj"
-]  # may need adjustment depending on model internals
+]  # may need adjustment depending on internals of model
 
 # Misc
 NUM_WORKERS = 2
