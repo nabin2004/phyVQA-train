@@ -20,8 +20,8 @@ SEED = 42
 PRINT_EVERY = 10
 
 # Token / lengths
-MAX_TEXT_LEN = 256
-MAX_LABEL_LEN = 128
+MAX_TEXT_LEN = 768
+MAX_LABEL_LEN = 512
 PREFIX_TOKENS = 1  # number of prefix tokens produced by projector
 
 # QLoRA / bnb config

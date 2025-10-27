@@ -1,3 +1,4 @@
+# train.py
 import os
 import random
 import csv
@@ -81,6 +82,12 @@ def main():
     dataloader = DataLoader(
         dataset, batch_size=config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKERS
     )
+    
+    # print("dataset and dataloader ready.")
+    # print(f"Total training steps per epoch: {len(dataloader)}")
+    # print(f"dataset: {dataset}")
+    # print(f"dataloader batch: {next(iter(dataloader))}")
+    # print("End of setup. Starting training...")
 
     peft_params = [p for _, p in model.named_parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(peft_params + list(projector.parameters()), lr=config.LR)

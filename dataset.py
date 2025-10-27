@@ -10,12 +10,20 @@ def load_examples(jsonl_path: str, imageid_to_idx: dict):
     with open(jsonl_path, "r", encoding="utf-8") as fh:
         for line in fh:
             obj = json.loads(line)
-            if not all(k in obj for k in ("image", "question", "answer")):
+            # Make sure all required keys exist
+            if not all(k in obj for k in ("image", "question", "answer", "context")):
                 continue
+
             img_name = os.path.basename(obj["image"])
             if img_name not in imageid_to_idx:
                 continue
-            examples.append({"image_id": img_name, "question": obj["question"], "answer": obj["answer"]})
+
+            examples.append({
+                "image_id": img_name,
+                "question": obj["question"],
+                "answer": obj["answer"],
+                "context": obj["context"]
+            })
     return examples
 
 class VisionPrefixDataset(Dataset):
@@ -41,26 +49,54 @@ class VisionPrefixDataset(Dataset):
     def __getitem__(self, idx):
         ex = self.examples[idx]
         emb_idx = self.imageid_to_idx[ex["image_id"]]
-        vision_emb = self.emb[emb_idx]  # CPU tensor
+        vision_emb = self.emb[emb_idx]
+        
+        system_prompt = (
+            "You are a teaching assistant. Given a student's question and an image, "
+            "always respond in Nepali in a friendly and explanatory tone. "
+            "Provide the answer and context in the following JSON format, without adding any extra text:\n"
+            '{\n  "answer": "<the answer in Nepali>",\n'
+            '  "context": "<the explanation or context in Nepali>"\n}\n\n'
+        )
+
+        # system_prompt = (
+        #     "तिमी एक शिक्षक सहायक हौ। विद्यार्थीको प्रश्न र छवि दिइएको छ भने, "
+        #     "कृपया सधैं निम्न JSON ढाँचामा उत्तर दिनुहोस्:\n"
+        #     '{\n  "answer": "<तपाईंको उत्तर>",\n  "context": "<सन्दर्भ/व्याख्या>"\n}\n\n'
+        # )
+
+
     
-        # Combine question + answer into a single sequence
-        prompt = f"Question: {ex['question']}\nAnswer: {ex['answer']}"
+        # Input prompt: only question
+        prompt = system_prompt + f"Question: {ex['question']}"
     
-        enc = self.tokenizer(
+        # Target text: answer + context
+        target = f"Answer: {ex['answer']}\nContext: {ex['context']}"
+    
+        # Tokenize input
+        enc_input = self.tokenizer(
             prompt,
             truncation=True,
             padding="max_length",
             max_length=self.max_text_len,
-            return_tensors="pt",
+            return_tensors="pt"
         )
     
-        # Labels should match input_ids exactly, except padding tokens ignored
-        labels = enc["input_ids"].clone()
-        labels[enc["attention_mask"] == 0] = -100
+        # Tokenize target
+        enc_target = self.tokenizer(
+            target,
+            truncation=True,
+            padding="max_length",
+            max_length=self.max_label_len,
+            return_tensors="pt"
+        )
+    
+        labels = enc_target["input_ids"].clone()
+        labels[enc_target["attention_mask"] == 0] = -100  # mask padding
     
         return {
             "vision_emb": vision_emb,
-            "input_ids": enc["input_ids"].squeeze(0),
-            "attention_mask": enc["attention_mask"].squeeze(0),
-            "labels": labels.squeeze(0),
+            "input_ids": enc_input["input_ids"].squeeze(0),
+            "attention_mask": enc_input["attention_mask"].squeeze(0),
+            "labels": labels.squeeze(0)
         }
