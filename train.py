@@ -82,13 +82,11 @@ def main():
     dataloader = DataLoader(
         dataset, batch_size=config.BATCH_SIZE, shuffle=True, num_workers=config.NUM_WORKERS
     )
-    
     # print("dataset and dataloader ready.")
     # print(f"Total training steps per epoch: {len(dataloader)}")
     # print(f"dataset: {dataset}")
     # print(f"dataloader batch: {next(iter(dataloader))}")
     # print("End of setup. Starting training...")
-
     peft_params = [p for _, p in model.named_parameters() if p.requires_grad]
     optimizer = torch.optim.AdamW(peft_params + list(projector.parameters()), lr=config.LR)
 
@@ -116,7 +114,19 @@ def main():
             prefix_labels = torch.full((B, proj.size(1)), -100, device=config.DEVICE, dtype=labels.dtype)
             extended_labels = torch.cat([prefix_labels, labels], dim=1)
 
-            outputs = model(inputs_embeds=inputs_embeds, attention_mask=extended_attention_mask, labels=extended_labels)
+            # outputs = model(inputs_embeds=inputs_embeds, attention_mask=extended_attention_mask, labels=extended_labels)
+            
+            # ensure seq lengths align
+            min_len = min(inputs_embeds.size(1), extended_attention_mask.size(1), extended_labels.size(1))
+            inputs_embeds = inputs_embeds[:, :min_len, :]
+            extended_attention_mask = extended_attention_mask[:, :min_len]
+            extended_labels = extended_labels[:, :min_len]
+            
+            outputs = model(
+                inputs_embeds=inputs_embeds,
+                attention_mask=extended_attention_mask,
+                labels=extended_labels
+            )
             loss = outputs.loss
 
             if torch.isnan(loss):
