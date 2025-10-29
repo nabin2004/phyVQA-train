@@ -8,7 +8,8 @@ OUTPUT_DIR = "./output_gemma_vision_lora"
 LOG_DIR = "./logs"
 
 # Model
-MODEL_ID = "google/gemma-3-270m-it" 
+# MODEL_ID = "google/gemma-3-270m-it"
+MODEL_ID = "google/gemma-3-1b-it"
 TRUST_REMOTE_CODE = True
 
 # Training
